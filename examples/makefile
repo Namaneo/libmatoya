@@ -1,7 +1,7 @@
-NAME = 0-minimal
+name = 0-minimal
 
 BIN  = example.exe
-OBJ  = $(NAME).obj
+OBJ  = $(name).obj
 LIBS = ../bin/windows/%Platform%/matoya.lib
 
 CFLAGS = -I../src/
@@ -44,4 +44,5 @@ clear:
 	cls
 
 app: $(OBJ)
+	pushd .. & nmake
 	link /out:$(BIN) $(OBJ) $(LIBS) $(SYS_LIBS) $(LD_FLAGS)

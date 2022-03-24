@@ -30,29 +30,41 @@ The Android build requires some initial setup:
 
 # Build
 
-Change the `NAME` parameter in the commands below to compile different examples.
+Change the `name` parameter in the commands below to compile different examples.
 
 ## Windows
 
 From a developer command command prompt:
 ```
-nmake NAME=0-minimal
+nmake name=0-minimal
 ```
 
-## Linux / MacOS
+## Linux
 
 From any terminal (or WSL if building from Windows):
 ```
-make NAME=0-minimal
+make linux=1 name=0-minimal
+```
+
+## MacOS
+
+From any terminal:
+```
+make macos=1 name=0-minimal
 ```
 
 ## Android
 
 Build the Android app and run it on a connected device:
 ```
-make android NAME=0-minimal
+make android=1 name=0-minimal
 ```
 Only build an Android artifact:
 ```
-make android-build NAME=0-minimal
+make run android=1 name=0-minimal
 ```
+
+# Notes
+
+* As WASM does not currently support threading, `2-threaded` will not work on the web platform.
+* As BGRA color format is not supported on browsers, the image will appear with blue and red inverted. 

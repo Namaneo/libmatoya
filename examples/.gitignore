@@ -3,5 +3,9 @@
 *.exe
 *.pdb
 *.ilk
+*.wasm
 
 example*
+
+Matoya.java
+matoya.js
