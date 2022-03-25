@@ -28,6 +28,11 @@ The Android build requires some initial setup:
     ```
 * *Windows only*: `adb.exe` must be started on the host to let the connected devices be visible inside WSL.
 
+## Web
+
+* *Windows only*: Install and setup a WSL1 distribution (we recommend `Ubuntu-20.04`).
+* Extract the [WASI SDK 12](https://github.com/WebAssembly/wasi-sdk/releases/tag/wasi-sdk-12) in `~/wasi-sdk-12`.
+
 # Build
 
 Change the `name` parameter in the commands below to compile different examples.
@@ -55,13 +60,24 @@ make macos=1 name=0-minimal
 
 ## Android
 
-Build the Android app and run it on a connected device:
+Only build an Android artifact:
 ```
 make android=1 name=0-minimal
 ```
-Only build an Android artifact:
+Build the Android app and run it on a connected device:
 ```
 make run android=1 name=0-minimal
+```
+
+## Web
+
+From any terminal (or WSL if building from Windows):
+```
+make wasm=1 name=0-minimal
+```
+You can test by running a light http server from the `web` folder:
+```
+python3 -m http.server 8080 -d web
 ```
 
 # Notes
