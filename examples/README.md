@@ -10,6 +10,13 @@ The Windows build requires you to install the [Build Tools for Visual Studio](ht
 
 Once installed, open a `Native Tools Command Prompt` (`x64` or `x86` depending on which architecture you want). From a regular command prompt, you can also run `vcvars64.bat` or `vcvars86.bat`, usually located in `<Visual Studio Install Folder>\Community\VC\Auxiliary\Build\`.
 
+## Apple
+
+Apple devices requires the `Xcode Command Line Tools`. Those can be installed using the following command:
+```
+xcode-select --install
+```
+
 ## Android
 
 The Android build requires some initial setup:
@@ -51,11 +58,11 @@ From any terminal (or WSL if building from Windows):
 make linux=1 name=0-minimal
 ```
 
-## MacOS
+## Apple
 
 From any terminal:
 ```
-make macos=1 name=0-minimal
+make apple=1 name=0-minimal
 ```
 
 ## Android
@@ -83,4 +90,3 @@ python3 -m http.server 8080 -d web
 # Notes
 
 * As WASM does not currently support threading, `2-threaded` will not work on the web platform.
-* As BGRA color format is not supported on browsers, the image will appear with blue and red inverted. 

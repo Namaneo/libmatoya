@@ -3,6 +3,40 @@ name = 0-minimal
 all: clean app
 
 #############
+### APPLE ###
+#############
+
+ifdef apple
+
+ifndef ARCH
+ARCH = $(shell uname -m)
+endif
+
+BIN   = example
+OBJ   = $(name).o
+LIBS  = ../bin/macosx/$(ARCH)/libmatoya.a
+
+CFLAGS  = -I../src
+LDFLAGS = \
+	-framework OpenGL \
+	-framework AppKit \
+	-framework Metal \
+	-framework IOKit \
+	-framework CoreVideo \
+	-framework Carbon \
+	-framework QuartzCore \
+	-framework Security
+
+clean:
+	rm -f $(BIN) $(OBJ)
+
+app: $(OBJ)
+	@make --no-print-directory -C ../
+	$(CC) -o $(BIN) $(OBJ) $(LIBS) $(LDFLAGS)
+
+endif
+
+#############
 ### LINUX ###
 #############
 
