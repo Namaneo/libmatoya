@@ -25,6 +25,7 @@ NAME = matoya
 OBJS = \
 	src\app.obj \
 	src\crypto.obj \
+	src\cursor.obj \
 	src\file.obj \
 	src\hash.obj \
 	src\image.obj \
@@ -39,6 +40,7 @@ OBJS = \
 	src\tlocal.obj \
 	src\tls.obj \
 	src\version.obj \
+	src\zoom.obj \
 	src\gfx\gl.obj \
 	src\gfx\gl-ui.obj \
 	src\hid\hid.obj \
@@ -63,6 +65,7 @@ OBJS = \
 	src\windows\threadw.obj \
 	src\windows\time.obj \
 	src\windows\tlsw.obj \
+	src\windows\wintab.obj \
 	src\windows\gfx\d3d12.obj \
 	src\windows\gfx\d3d12-ctx.obj \
 	src\windows\gfx\d3d12-ui.obj \

@@ -47,8 +47,11 @@ void MTY_WindowDrawQuad(MTY_App *app, MTY_Window window, const void *image, cons
 	struct gfx_ctx *gfx_ctx = NULL;
 	MTY_GFX api = mty_window_get_gfx(app, window, &gfx_ctx);
 
+	MTY_RenderDesc mutated = *desc;
+	MTY_WindowGetSize(app, window, &mutated.displayWidth, &mutated.displayHeight);
+
 	if (api != MTY_GFX_NONE)
-		GFX_CTX_API[api].draw_quad(gfx_ctx, image, desc);
+		GFX_CTX_API[api].draw_quad(gfx_ctx, image, &mutated);
 }
 
 void MTY_WindowDrawUI(MTY_App *app, MTY_Window window, const MTY_DrawData *dd)
@@ -115,6 +118,9 @@ bool MTY_WindowSetGFX(MTY_App *app, MTY_Window window, MTY_GFX api, bool vsync)
 
 		// Fallback
 		if (!gfx_ctx) {
+			if (api == MTY_GFX_D3D12)
+				return MTY_WindowSetGFX(app, window, MTY_GFX_D3D11, vsync);
+
 			if (api == MTY_GFX_D3D11)
 				return MTY_WindowSetGFX(app, window, MTY_GFX_D3D9, vsync);
 
@@ -148,6 +154,8 @@ void MTY_PrintEvent(const MTY_Event *evt)
 		PEVENT(MTY_EVENT_HOTKEY, evt, "id: %u", evt->hotkey);
 		PEVENT(MTY_EVENT_TEXT, evt, "text: %s", evt->text);
 		PEVENT(MTY_EVENT_SCROLL, evt, "x: %d, y: %d, pixels: %u", evt->scroll.x, evt->scroll.y, evt->scroll.pixels);
+		PEVENT(MTY_EVENT_SCALE, evt, "factor: %f, focusX: %f, focusY: %f", evt->scale.factor, 
+			evt->scale.focusX, evt->scale.focusY);
 		PEVENT(MTY_EVENT_FOCUS, evt, "focus: %u", evt->focus);
 		PEVENT(MTY_EVENT_MOTION, evt, "x: %d, y: %d, relative: %u, synth: %u", evt->motion.x,
 			evt->motion.y, evt->motion.relative, evt->motion.synth);
@@ -157,8 +165,10 @@ void MTY_PrintEvent(const MTY_Event *evt)
 		PEVENT(MTY_EVENT_CLIPBOARD, evt, "");
 		PEVENT(MTY_EVENT_TRAY, evt, "id: %u", evt->trayID);
 		PEVENT(MTY_EVENT_REOPEN, evt, "arg: %s", evt->reopenArg);
-		PEVENT(MTY_EVENT_PEN, evt, "x: %u, y: %u, flags: 0x%X, pressure: %u, rotation: %u, tiltX: %d, tiltY: %d",
-			evt->pen.x, evt->pen.y, evt->pen.flags, evt->pen.pressure, evt->pen.rotation, evt->pen.tiltX, evt->pen.tiltY);
+		PEVENT(MTY_EVENT_PEN, evt, "x: %u, y: %u, z: %u, flags: 0x%X, pressure: %u, rotation: %u, tiltX: %d, tiltY: %d",
+			evt->pen.x, evt->pen.y, evt->pen.z, evt->pen.flags, evt->pen.pressure, evt->pen.rotation, evt->pen.tiltX, evt->pen.tiltY);
+		PEVENT(MTY_EVENT_WINTAB, evt, "type: %d, device: %d, control: %d, state: %d, position: %d",
+			evt->wintab.type, evt->wintab.device, evt->wintab.control, evt->wintab.state, evt->wintab.position);
 		PEVENT(MTY_EVENT_CONNECT, evt, "id: %u", evt->controller.id);
 		PEVENT(MTY_EVENT_DISCONNECT, evt, "id: %u", evt->controller.id);
 		PEVENT(MTY_EVENT_SIZE, evt, "");

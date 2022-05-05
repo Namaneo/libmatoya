@@ -16,6 +16,7 @@ NAME = libmatoya
 OBJS = \
 	src/app.o \
 	src/crypto.o \
+	src/cursor.o \
 	src/file.o \
 	src/hash.o \
 	src/image.o \
@@ -30,6 +31,7 @@ OBJS = \
 	src/tlocal.o \
 	src/tls.o \
 	src/version.o \
+	src/zoom.o \
 	src/gfx/gl.o \
 	src/gfx/gl-ui.o \
 	src/hid/utils.o \
