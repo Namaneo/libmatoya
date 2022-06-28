@@ -25,6 +25,7 @@ NAME = matoya
 OBJS = \
 	src\app.obj \
 	src\crypto.obj \
+	src\cursor.obj \
 	src\file.obj \
 	src\hash.obj \
 	src\image.obj \
@@ -40,6 +41,7 @@ OBJS = \
 	src\tlocal.obj \
 	src\tls.obj \
 	src\version.obj \
+	src\zoom.obj \
 	src\gfx\gl.obj \
 	src\gfx\gl-ui.obj \
 	src\hid\hid.obj \
