@@ -3662,6 +3662,17 @@ MTY_EXPORT bool
 MTY_ArchiveUnpack(MTY_Archive *ctx, MTY_ArchiveFile *file);
 
 
+//- #module MIME
+//- #mbrief Helpers related to MIME types
+
+/// @brief Get MIME type from the file path.
+/// @details Supported MIME types are those found on the MDN web docs.
+/// @param path The path of the file.
+/// @return The corresponding MIME type, or `application/octet-stream` if not found.
+MTY_EXPORT const char *
+MTY_MIMEGetType(const char *path);
+
+
 #ifdef __cplusplus
 }
 #endif

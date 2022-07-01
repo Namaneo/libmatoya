@@ -33,6 +33,7 @@ OBJS = \
 	src\list.obj \
 	src\log.obj \
 	src\memory.obj \
+	src\mime.obj \
 	src\queue.obj \
 	src\render.obj \
 	src\resample.obj \
