@@ -72,7 +72,7 @@ PARSEC_LIBS = \
 
 STATIC_LIBS = \
 	..\bin\windows\%Platform%\matoya.lib \
-	lib\%Platform%\WebView2LoaderStatic.lib
+	windows\%Platform%\WebView2LoaderStatic.lib
 
 all: clean clear $(OBJS)
 	link /out:example.exe *.obj $(LD_FLAGS) $(LIBS) $(MTY_LIBS) $(PARSEC_LIBS) $(STATIC_LIBS)
