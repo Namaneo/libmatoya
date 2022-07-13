@@ -446,6 +446,32 @@ JNIEXPORT jboolean JNICALL Java_group_matoya_lib_Matoya_app_1scroll(JNIEnv *env,
 
 // JNI mouse events
 
+// TODO handle scroll when relative mode is enabled
+JNIEXPORT void JNICALL Java_group_matoya_lib_Matoya_app_1pen_1event(JNIEnv *env, jobject obj,
+	jfloat x, jfloat y, jfloat pressure, jboolean touching, jboolean leave, jboolean barrel)
+{
+	CTX.should_detach = true;
+
+	MTY_Event evt = {0};
+	evt.type = MTY_EVENT_PEN;
+	evt.pen.x = lrint(x);
+	evt.pen.y = lrint(y);
+	evt.pen.pressure = (uint16_t) (pressure * 1024);
+
+	if (touching)
+		evt.pen.flags |= MTY_PEN_FLAG_TOUCHING;
+
+	if (leave)
+		evt.pen.flags |= MTY_PEN_FLAG_LEAVE;
+
+	if (barrel) {
+		evt.pen.flags |= MTY_PEN_FLAG_BARREL;
+		evt.pen.flags |= MTY_PEN_FLAG_TOUCHING;
+	}
+
+	app_push_event(&CTX, &evt);
+}
+
 JNIEXPORT void JNICALL Java_group_matoya_lib_Matoya_app_1mouse_1motion(JNIEnv *env, jobject obj,
 	jboolean relative, jfloat x, jfloat y)
 {
@@ -837,8 +863,6 @@ bool MTY_AppGetRelativeMouse(MTY_App *ctx)
 
 void MTY_AppSetRelativeMouse(MTY_App *ctx, bool relative)
 {
-	mty_jni_void(MTY_GetJNIEnv(), ctx->obj, "setRelativeMouse", "(Z)V", relative);
-
 	ctx->relative = relative;
 }
 

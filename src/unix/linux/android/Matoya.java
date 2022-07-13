@@ -74,6 +74,7 @@ public class Matoya extends SurfaceView implements
 	native void app_single_tap_up(float x, float y);
 	native boolean app_scroll(float absX, float absY, float x, float y, int fingers, boolean start);
 	native void app_check_scroller(boolean check);
+	native void app_pen_event(float x, float y, float pressure, boolean touching, boolean leave, boolean barrel);
 	native void app_mouse_motion(boolean relative, float x, float y);
 	native void app_mouse_button(boolean pressed, int button, float x, float y);
 	native void app_generic_scroll(float x, float y);
@@ -126,6 +127,7 @@ public class Matoya extends SurfaceView implements
 		this.setFocusableInTouchMode(true);
 		this.setFocusable(true);
 		this.requestFocus();
+		this.requestPointerCapture();
 
 		app_start();
 	}
@@ -200,6 +202,10 @@ public class Matoya extends SurfaceView implements
 
 	// Events
 
+	static boolean isStylusEvent(MotionEvent event) {
+		return event.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS;
+	}
+
 	static boolean isMouseEvent(InputEvent event) {
 		return
 			(event.getSource() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE ||
@@ -241,8 +247,11 @@ public class Matoya extends SurfaceView implements
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		// Mouse motion while buttons are held down fire here
-		if (isMouseEvent(event)) {
+		if (isStylusEvent(event)) {
+			boolean barrel = event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY;
+			boolean touching = event.getActionMasked() != MotionEvent.ACTION_UP;
+			app_pen_event(event.getX(0), event.getY(0), event.getPressure(0), touching, false, barrel);
+		} else if (isMouseEvent(event)) {
 			if (event.getActionMasked() == MotionEvent.ACTION_MOVE)
 				app_mouse_motion(false, event.getX(0), event.getY(0));
 
@@ -348,7 +357,11 @@ public class Matoya extends SurfaceView implements
 
 	@Override
 	public boolean onGenericMotionEvent(MotionEvent event) {
-		if (isMouseEvent(event)) {
+		if (isStylusEvent(event)) {
+			boolean barrel = event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY;
+			boolean leave = event.getActionMasked() == MotionEvent.ACTION_HOVER_EXIT;
+			app_pen_event(event.getX(0), event.getY(0), event.getPressure(0), false, leave, barrel);
+		} else if (isMouseEvent(event)) {
 			switch (event.getActionMasked()) {
 				case MotionEvent.ACTION_HOVER_MOVE:
 					app_mouse_motion(false, event.getX(0), event.getY(0));
@@ -532,23 +545,6 @@ public class Matoya extends SurfaceView implements
 			public void run() {
 				self.defaultCursor = useDefault;
 				self.setCursor();
-			}
-		});
-	}
-
-	public void setRelativeMouse(boolean _relative) {
-		final Matoya self = this;
-		final boolean relative = _relative;
-
-		this.activity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (relative) {
-					self.requestPointerCapture();
-
-				} else {
-					self.releasePointerCapture();
-				}
 			}
 		});
 	}
