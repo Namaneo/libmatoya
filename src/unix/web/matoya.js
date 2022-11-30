@@ -184,6 +184,14 @@ function mty_gl_obj(index) {
 	return MTY.glObj[index];
 }
 
+function mty_gl_get_texture(type, data) {
+	if (type == MTY.gl.UNSIGNED_BYTE)
+		return new Uint8Array(mty_mem(), data);
+	if (type == MTY.gl.FLOAT)
+		return new Float32Array(mty_mem(), data);
+	return new Uint16Array(mty_mem(), data);
+}
+
 const MTY_GL_API = {
 	glGenFramebuffers: function (n, ids) {
 		for (let x = 0; x < n; x++)
@@ -274,11 +282,11 @@ const MTY_GL_API = {
 	},
 	glTexImage2D: function (target, level, internalformat, width, height, border, format, type, data) {
 		MTY.gl.texImage2D(target, level, internalformat, width, height, border, format, type,
-			new Uint8Array(mty_mem(), data));
+			mty_gl_get_texture(type, data));
 	},
 	glTexSubImage2D: function (target, level, xoffset, yoffset, width, height, format, type, pixels) {
 		MTY.gl.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type,
-			new Uint8Array(mty_mem(), pixels));
+			mty_gl_get_texture(type, pixels));
 	},
 	glDrawElements: function (mode, count, type, indices) {
 		MTY.gl.drawElements(mode, count, type, indices);
@@ -535,7 +543,16 @@ function mty_decompress_image(input, func) {
 		const width = img.naturalWidth;
 		const height = img.naturalHeight;
 
-		const canvas = new OffscreenCanvas(width, height);
+		let canvas = null;
+		if (typeof OffscreenCanvas !== "undefined") {
+			const canvas = new OffscreenCanvas(width, height);
+
+		} else {
+			const canvas = document.createElement('canvas');
+			canvas.width = width;
+			canvas.height = height;
+		}
+
 		const ctx = canvas.getContext('2d');
 		ctx.drawImage(img, 0, 0, width, height);
 
@@ -780,6 +797,11 @@ function mty_correct_relative() {
 }
 
 function mty_poll_gamepads(app, controller) {
+
+	//Some browsers completely disable the function on non-secure contexts
+	if (!navigator.getGamepads)
+		return;
+
 	const gps = navigator.getGamepads();
 
 	for (let x = 0; x < 4; x++) {
@@ -1393,6 +1415,9 @@ const MTY_WASI_API = {
 
 		return 28;
 	},
+	fd_sync: (fd) => {
+		return 0;
+	},
 
 	// Paths
 	path_filestat_get: function (fd, flags, cpath, _0, filestat_out) {
@@ -1401,6 +1426,8 @@ const MTY_WASI_API = {
 			// We only need to return the size
 			const buf = mty_b64_to_buf(localStorage[path]);
 			MTY_SetUint64(filestat_out + 32, buf.byteLength);
+		} else {
+			MTY_SetUint64(filestat_out + 32, 0);
 		}
 
 		return 0;
@@ -1442,11 +1469,22 @@ const MTY_WASI_API = {
 	},
 	fd_fdstat_set_flags: function () {
 	},
+	fd_filestat_set_size: function (fd, size) {
+	},
 	fd_readdir: function () {
 		return 8;
 	},
 	fd_seek: function (fd, offset, whence, offset_out) {
 		return 0;
+	},
+	fd_tell: function (fd) {
+		const finfo = MTY.fds[fd];
+
+		if (finfo && localStorage[finfo.path]) {
+			return mty_b64_to_buf(localStorage[finfo.path]).length;
+		}
+
+		return -1;
 	},
 	fd_read: function (fd, iovs, iovs_len, nread) {
 		const finfo = MTY.fds[fd];
@@ -1456,17 +1494,20 @@ const MTY_WASI_API = {
 
 			let ptr = iovs;
 			let cbuf = MTY_GetUint32(ptr);
-			let cbuf_len = MTY_GetUint32(ptr + 4);
+			let cbuf_len = MTY_GetUint32(ptr + 4) + 1;
 			let len = cbuf_len < full_buf.length ? cbuf_len : full_buf.length;
 
 			let view = new Uint8Array(mty_mem(), cbuf, cbuf_len);
 			let slice = new Uint8Array(full_buf.buffer, 0, len);
 			view.set(slice);
 
+			MTY_SetUint32(ptr + 4, len + 1);
 			MTY_SetUint32(nread, len);
+
+			return 0; //OK
 		}
 
-		return 0;
+		return 2; //ENOENT
 	},
 	fd_write: function (fd, iovs, iovs_len, nwritten) {
 		// Calculate full write size
@@ -1520,7 +1561,18 @@ const MTY_WASI_API = {
 
 	// Misc
 	clock_time_get: function (id, precision, time_out) {
-		MTY_SetUint64(time_out, Math.round(performance.now() * 1000.0 * 1000.0));
+		let time = 0;
+
+		// CLOCK_REALTIME
+		if (id == 0)
+			time = Date.now();
+
+		// CLOCK_MONOTONIC
+		if (id == 1)
+			time = performance.now()
+
+		MTY_SetUint64(time_out, Math.round(time * 1000.0 * 1000.0));
+
 		return 0;
 	},
 	poll_oneoff: function (sin, sout, nsubscriptions, nevents) {
@@ -1528,9 +1580,10 @@ const MTY_WASI_API = {
 	},
 	proc_exit: function () {
 	},
-	environ_get: function () {
+	environ_get: function(environ, environ_buf) {
 	},
-	environ_sizes_get: function () {
+	environ_sizes_get: function() {
+		return 0;
 	},
 };
 
