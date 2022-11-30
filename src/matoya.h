@@ -139,6 +139,9 @@ typedef struct {
 	float scale;            ///< Multiplier applied to the dimensions of the image, producing an
 	                        ///<   minimized or magnified image. This can be set to 0
 	                        ///<   if unnecessary.
+	bool clear;             ///< Should clear the window before drawing the quad.
+	bool blend;             ///< Should enable blending capability when drawing the quad.
+	                        ///<   Note: This is currently not supported in D3D12 and Metal.
 } MTY_RenderDesc;
 
 /// @brief A point with an `x` and `y` coordinate.
@@ -696,8 +699,8 @@ typedef struct {
 /// @brief Button event.
 typedef struct {
 	int32_t id;        ///< A unique identifier representing the pointer used.
-	                   ///<   This is useful to track touch-based events. 
-	                   ///<   Mouse events will always have 0. 
+	                   ///<   This is useful to track touch-based events.
+	                   ///<   Mouse events will always have 0.
 	MTY_Button button; ///< The button that has been pressed or released.
 	int32_t x;         ///< Horizontal position in the client area window.
 	int32_t y;         ///< Vertical position in the client area of the window.
@@ -707,8 +710,8 @@ typedef struct {
 /// @brief Motion event.
 typedef struct {
 	int32_t id;    ///< A unique identifier representing the pointer used.
-	               ///<   This is useful to track touch-based events. 
-	               ///<   Mouse events will always have 0. 
+	               ///<   This is useful to track touch-based events.
+	               ///<   Mouse events will always have 0.
 	int32_t x;     ///< If `relative` is true, the horizontal delta since the previous motion
 	               ///<   event, otherwise the horizontal position in the window's client area.
 	int32_t y;     ///< In `relative` is true, the vertical delta since the previous motion event,
