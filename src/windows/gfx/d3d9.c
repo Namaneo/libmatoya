@@ -262,7 +262,7 @@ bool mty_d3d9_render(struct gfx *gfx, MTY_Device *device, MTY_Context *context,
 
 	// Viewport
 	float vpx, vpy, vpw, vph;
-	mty_viewport(desc, &vpx, &vpy, &vpw, &vph);
+	mty_viewport(desc, &vpx, &vpy, &vpw, &vph, false);
 
 	D3DVIEWPORT9 vp = {0};
 	vp.X = lrint(vpx);
