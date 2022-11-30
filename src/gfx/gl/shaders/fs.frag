@@ -150,14 +150,16 @@ void rotate(int rotation, inout vec2 uv)
 		uv[0] = 1.0 - uv[0];
 }
 
-void get_bit(inout int mask, int bit, out int set)
+int get_bit(in int mask, int bit, out int set)
 {
 	if (mask >= bit) {
 		mask -= bit;
 		set = 1;
+		return mask - bit;
 
 	} else {
 		set = 0;
+		return mask;
 	}
 }
 
@@ -176,10 +178,10 @@ void main(void)
 	int cbits = icb[2];
 
 	ivec4 conversion;
-	get_bit(cbits, 8, conversion[3]);
-	get_bit(cbits, 4, conversion[2]);
-	get_bit(cbits, 2, conversion[1]);
-	get_bit(cbits, 1, conversion[0]);
+	cbits = get_bit(cbits, 8, conversion[3]);
+	cbits = get_bit(cbits, 4, conversion[2]);
+	cbits = get_bit(cbits, 2, conversion[1]);
+	cbits = get_bit(cbits, 1, conversion[0]);
 
 	// Rotate
 	vec2 uv = frag_texcoord;
